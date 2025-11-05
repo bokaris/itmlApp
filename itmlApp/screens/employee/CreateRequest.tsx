@@ -9,8 +9,10 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CreateRequest() {
+  const { user } = useAuth(); // ✅ get logged-in user
   const [type, setType] = useState("remote");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -21,6 +23,11 @@ export default function CreateRequest() {
     date ? date.toISOString().split("T")[0] : "";
 
   const handleSubmit = async () => {
+    if (!user?.email) {
+      Alert.alert("⚠️ Not logged in", "Please log in to submit a request.");
+      return;
+    }
+
     if (!startDate || !endDate) {
       Alert.alert("⚠️ Missing info", "Please select both dates.");
       return;
@@ -29,29 +36,32 @@ export default function CreateRequest() {
     if (endDate < startDate) {
       Alert.alert(
         "⚠️ Invalid dates",
-        "End date cannot be earlier than the start date."
+        "End date cannot be earlier than start date."
       );
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:5000/requests", {
+      const res = await fetch("http://10.0.2.2:5000/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type,
           startDate: formatDate(startDate),
           endDate: formatDate(endDate),
-          email: "employee@itml.com",
+          email: user.email, // ✅ dynamic
         }),
       });
+
+      const data = await res.json();
 
       if (res.ok) {
         Alert.alert("✅ Success", "Request submitted successfully!");
         setStartDate(null);
         setEndDate(null);
       } else {
-        Alert.alert("❌ Error", "Failed to submit request.");
+        console.error("❌ Server error:", data);
+        Alert.alert("❌ Error", data.error || "Failed to submit request.");
       }
     } catch (err) {
       console.error(err);
@@ -61,6 +71,8 @@ export default function CreateRequest() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>New Request</Text>
+
       {/* Type Dropdown */}
       <Text style={styles.label}>Request Type</Text>
       <View style={styles.pickerWrapper}>
@@ -113,7 +125,7 @@ export default function CreateRequest() {
             setShowStartPicker(false);
             if (date) {
               setStartDate(date);
-              if (endDate && date > endDate) setEndDate(null); // reset invalid end date
+              if (endDate && date > endDate) setEndDate(null);
             }
           }}
         />
@@ -124,7 +136,7 @@ export default function CreateRequest() {
           value={endDate || startDate || new Date()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
-          minimumDate={startDate || new Date()} // prevent choosing earlier date
+          minimumDate={startDate || new Date()}
           onChange={(event, date) => {
             setShowEndPicker(false);
             if (date) setEndDate(date);

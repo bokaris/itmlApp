@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { Button, Text, View } from "react-native";
 import { useAuth } from "../../context/AuthContext";
-import Employees from "./Employees";
+import HRApprovals from "./HRApprovals";
 import Home from "./Home";
 import Settings from "./Settings";
 
@@ -36,7 +36,7 @@ export default function HrTabs() {
       />
       <Tab.Screen
         name="Employees"
-        component={Employees}
+        component={HRApprovals}
         options={{
           title: "Approvals",
           tabBarIcon: ({ color, size }) => (
