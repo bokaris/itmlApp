@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
+import StatusBadge from "@/components/StatusBadge";
 
 type Request = {
   _id: string;
@@ -24,8 +25,8 @@ type Request = {
 export default function Requests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<Request[]>([]);
-  const [remaining, setRemaining] = useState();
-  const [total, setTotal] = useState();
+  const [remaining, setRemaining] = useState(0);
+  const [total, setTotal] = useState(20);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<any>();
 
@@ -63,62 +64,84 @@ export default function Requests() {
     );
   }
 
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const renderItem = ({ item }: { item: Request }) => {
     const isAnnual = item.type === "annual";
-    const employeeName = item.employee?.name || "Unknown Employee";
-
-    const statusStyle =
+    const statusColor =
       item.status === "approved"
-        ? styles.statusApproved
+        ? "#4CAF50"
         : item.status === "rejected"
-        ? styles.statusRejected
-        : styles.statusPending;
-
-    const formatDate = (dateStr?: string) => {
-      if (!dateStr) return "-";
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    };
+        ? "#E53935"
+        : "#FFD700";
 
     return (
       <View style={styles.card}>
-        <Text style={styles.type}>{item.type.toUpperCase()}</Text>
-        <Text style={styles.employee}>Employee: {employeeName}</Text>
+        <View style={styles.cardHeader}>
+          <Text style={styles.type}>{item.type.toUpperCase()}</Text>
+          <View style={[styles.badge, { backgroundColor: statusColor + "22" }]}>
+            <Text style={[styles.badgeText, { color: statusColor }]}>
+              {item.status.toUpperCase()}
+            </Text>
+          </View>
+        </View>
+
         <Text style={styles.dates}>
-          {formatDate(item.startDate)} → {formatDate(item.endDate)}
+          🗓 {formatDate(item.startDate)} → {formatDate(item.endDate)}
         </Text>
 
-        {/* 🧩 Show approval stages */}
         {isAnnual && (
           <Text style={styles.subtext}>
-            Manager Approval:{" "}
-            <Text style={styles.managerStatus}>
+            Manager:{" "}
+            <Text
+              style={{
+                color:
+                  item.managerApproved === null
+                    ? "#FFD700"
+                    : item.managerApproved
+                    ? "#4CAF50"
+                    : "#E53935",
+              }}
+            >
               {item.managerApproved === null
                 ? "Pending"
                 : item.managerApproved
-                ? "Approved ✅"
-                : "Rejected ❌"}
+                ? "Approved"
+                : "Rejected"}
             </Text>
           </Text>
         )}
 
         <Text style={styles.subtext}>
-          HR Approval:{" "}
-          <Text style={styles.managerStatus}>
+          HR:{" "}
+          <Text
+            style={{
+              color:
+                item.hrApproved === null
+                  ? "#FFD700"
+                  : item.hrApproved
+                  ? "#4CAF50"
+                  : "#E53935",
+            }}
+          >
             {item.hrApproved === null
               ? "Pending"
               : item.hrApproved
-              ? "Approved ✅"
-              : "Rejected ❌"}
+              ? "Approved"
+              : "Rejected"}
           </Text>
         </Text>
 
-        <Text style={[styles.status, statusStyle]}>
-          {item.status.toUpperCase()}
-        </Text>
+        <View style={styles.statusContainer}>
+          <StatusBadge status={item.status} />
+        </View>
       </View>
     );
   };
@@ -126,9 +149,12 @@ export default function Requests() {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.header}>
-          Remaining annual leaves: {remaining}/{total}
-        </Text>
+        <View>
+          <Text style={styles.headerTitle}>My Requests</Text>
+          <Text style={styles.headerSubtitle}>
+            Remaining annual leaves: {remaining}/{total}
+          </Text>
+        </View>
         <TouchableOpacity
           style={styles.newButton}
           onPress={() => navigation.navigate("CreateRequest")}
@@ -162,36 +188,61 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    marginBlock: 12,
+    marginVertical: 12,
   },
-  header: { color: "#00A36C", fontSize: 18 },
+  headerTitle: {
+    color: "#00A36C",
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  headerSubtitle: {
+    color: "#aaa",
+    fontSize: 13,
+    marginTop: 2,
+  },
   newButton: {
     backgroundColor: "#00A36C",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    shadowColor: "#00A36C",
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  newButtonText: { color: "#000", fontWeight: "bold" },
+  newButtonText: { color: "#000", fontWeight: "bold", fontSize: 15 },
   card: {
     backgroundColor: "#111",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    borderColor: "#00A36C",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
+    borderColor: "#00A36C55",
     borderWidth: 1,
+    shadowColor: "#00A36C",
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  badge: {
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  badgeText: {
+    fontWeight: "bold",
+    fontSize: 13,
   },
   type: { color: "#00A36C", fontSize: 18, fontWeight: "bold" },
-  employee: { color: "#ccc", marginTop: 4 },
-  dates: { color: "#aaa", marginTop: 4 },
-  subtext: { color: "#aaa", marginTop: 6 },
-  managerStatus: { color: "#FFD700" },
-  status: {
+  dates: { color: "#ccc", marginBottom: 6 },
+  subtext: { color: "#aaa", marginTop: 4, fontSize: 13 },
+  statusContainer: {
     marginTop: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-    fontSize: 15,
+    alignItems: "flex-end",
   },
-  statusApproved: { color: "#4CAF50" },
-  statusRejected: { color: "#E53935" },
-  statusPending: { color: "#FFC107" },
 });

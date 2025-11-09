@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Alert,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
@@ -14,13 +15,14 @@ import { useAuth } from "@/context/AuthContext";
 const API_URL = "http://10.0.2.2:5000";
 
 export default function CreateRequest() {
-  const { user } = useAuth(); // ✅ get logged-in user
+  const { user } = useAuth();
   const [type, setType] = useState("remote");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
+  const [total, setTotal] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const formatDate = (date: Date | null) =>
@@ -33,7 +35,10 @@ export default function CreateRequest() {
         if (!user?.email) return;
         const res = await fetch(`${API_URL}/requests?email=${user.email}`);
         const data = await res.json();
-        if (data.remaining) setRemaining(data.remaining.remaining);
+        if (data.remaining) {
+          setRemaining(data.remaining.remaining);
+          setTotal(data.remaining.total);
+        }
       } catch (err) {
         console.error("❌ Error fetching remaining:", err);
       } finally {
@@ -63,14 +68,14 @@ export default function CreateRequest() {
     }
 
     try {
-      const res = await fetch("http://10.0.2.2:5000/requests", {
+      const res = await fetch(`${API_URL}/requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type,
           startDate: formatDate(startDate),
           endDate: formatDate(endDate),
-          email: user.email, // ✅ dynamic
+          email: user.email,
         }),
       });
 
@@ -90,11 +95,36 @@ export default function CreateRequest() {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#00A36C" />
+      </View>
+    );
+  }
+
+  const isAnnualDisabled = remaining === 0;
+
   return (
     <View style={styles.container}>
-      {/* Type Dropdown */}
+      <View style={styles.summaryCard}>
+        <Text style={styles.summaryText}>
+          🗓 Remaining Annual Leaves:{" "}
+          <Text
+            style={{
+              color: remaining === 0 ? "#E53935" : "#00A36C",
+              fontWeight: "bold",
+            }}
+          >
+            {remaining}/{total ?? 20}
+          </Text>
+        </Text>
+      </View>
+
       <Text style={styles.label}>Request Type</Text>
-      <View style={styles.pickerWrapper}>
+      <View
+        style={[styles.pickerWrapper, isAnnualDisabled && { opacity: 0.6 }]}
+      >
         <Picker
           selectedValue={type}
           onValueChange={(val) => setType(val)}
@@ -103,25 +133,27 @@ export default function CreateRequest() {
         >
           <Picker.Item label="Remote Work" value="remote" />
           <Picker.Item
-            label="Annual Leave"
+            label={
+              isAnnualDisabled
+                ? "Annual Leave (No remaining days)"
+                : "Annual Leave"
+            }
             value="annual"
-            enabled={remaining !== 0}
+            enabled={!isAnnualDisabled}
           />
         </Picker>
       </View>
 
-      {/* Start Date */}
       <Text style={styles.label}>Start Date</Text>
       <TouchableOpacity
         style={styles.input}
         onPress={() => setShowStartPicker(true)}
       >
         <Text style={styles.inputText}>
-          {startDate ? `Start: ${formatDate(startDate)}` : "Select Start Date"}
+          {startDate ? `📅 ${formatDate(startDate)}` : "Select Start Date"}
         </Text>
       </TouchableOpacity>
 
-      {/* End Date */}
       <Text style={styles.label}>End Date</Text>
       <TouchableOpacity
         style={styles.input}
@@ -134,7 +166,7 @@ export default function CreateRequest() {
         }}
       >
         <Text style={styles.inputText}>
-          {endDate ? `End: ${formatDate(endDate)}` : "Select End Date"}
+          {endDate ? `📅 ${formatDate(endDate)}` : "Select End Date"}
         </Text>
       </TouchableOpacity>
 
@@ -167,8 +199,19 @@ export default function CreateRequest() {
         />
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit Request</Text>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          isAnnualDisabled && type === "annual" && { opacity: 0.5 },
+        ]}
+        onPress={handleSubmit}
+        disabled={isAnnualDisabled && type === "annual"}
+      >
+        <Text style={styles.buttonText}>
+          {isAnnualDisabled && type === "annual"
+            ? "No Remaining Annual Leave"
+            : "Submit Request"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -176,6 +219,32 @@ export default function CreateRequest() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000", padding: 20 },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  header: {
+    color: "#00A36C",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  summaryCard: {
+    backgroundColor: "#111",
+    borderColor: "#00A36C55",
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+  },
+  summaryText: {
+    color: "#ccc",
+    textAlign: "center",
+    fontSize: 15,
+  },
   label: { color: "#aaa", marginBottom: 6 },
   pickerWrapper: {
     borderColor: "#00A36C",
@@ -190,14 +259,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 14,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  inputText: { color: "#fff" },
+  inputText: { color: "#fff", fontSize: 15 },
   button: {
     backgroundColor: "#00A36C",
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 10,
     marginTop: 20,
+    shadowColor: "#00A36C",
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 3,
   },
   buttonText: {
     textAlign: "center",

@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 import { seedDatabase } from "./seedDatabase.js";
 
-import authRoute from "./routes/auth.js";
+// import authRoute from "./routes/auth.js";
 import requestsRoute from "./routes/requests.js";
 import usersRouter from "./routes/users.js";
 
@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => res.json({ message: "API is running" }));
-app.use("/auth", authRoute);
+// app.use("/auth", authRoute);
 app.use("/requests", requestsRoute);
 app.use("/users", usersRouter);
 

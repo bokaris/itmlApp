@@ -1,6 +1,6 @@
 import { usePathname } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
-import LogoutButton from "../../components/LogoutButton";
+import LogoutButton from "../../components/LogoutModal";
 import { useAuth } from "../../context/AuthContext";
 
 export default function HRDashboard() {

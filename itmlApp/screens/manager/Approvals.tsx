@@ -44,7 +44,7 @@ export default function ManagerApprovals() {
         return;
       }
 
-      fetchRequests(); // refresh
+      fetchRequests();
     } catch (err) {
       console.error(`❌ Error on ${action}:`, err);
       Alert.alert("Error", `Failed to ${action} request`);
@@ -63,66 +63,117 @@ export default function ManagerApprovals() {
     );
   }
 
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const renderItem = ({ item }: any) => {
     const isAnnual = item.type === "annual";
     const isRemote = item.type === "remote";
-
     const canManagerAct = isAnnual && item.managerApproved === null;
 
-    const formatDate = (dateStr?: string) => {
-      if (!dateStr) return "-";
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    };
+    const statusColor =
+      item.status === "approved"
+        ? "#4CAF50"
+        : item.status === "rejected"
+        ? "#E53935"
+        : "#FFD700";
 
     return (
       <View style={styles.card}>
-        <Text style={styles.employee}>
-          Employee: {item.employee?.name || "Unknown"}
-        </Text>
-        <Text
-          style={{
-            color: isAnnual ? "#00A36C" : "#0099FF",
-            marginBottom: 4,
-          }}
-        >
-          Type: {item.type.toUpperCase()}
-        </Text>
-        <Text style={styles.text}>From: {formatDate(item.startDate)}</Text>
-        <Text style={styles.text}>To: {formatDate(item.endDate)}</Text>
-        <Text style={styles.text}>Status: {item.status.toUpperCase()}</Text>
+        <View style={styles.cardHeader}>
+          <Text style={styles.employee}>
+            {item.employee?.name || "Unknown"}
+          </Text>
+          <View style={[styles.badge, { backgroundColor: statusColor + "22" }]}>
+            <Text style={[styles.badgeText, { color: statusColor }]}>
+              {item.status.toUpperCase()}
+            </Text>
+          </View>
+        </View>
 
+        <Text
+          style={[styles.type, { color: isAnnual ? "#00A36C" : "#0099FF" }]}
+        >
+          {item.type.toUpperCase()}
+        </Text>
+
+        <View style={styles.datesRow}>
+          <Text style={styles.text}>🗓 {formatDate(item.startDate)}</Text>
+          <Text style={styles.text}>→ {formatDate(item.endDate)}</Text>
+        </View>
+
+        {/* Manager and HR approvals */}
+        {isAnnual && (
+          <Text style={styles.approvalText}>
+            Manager:{" "}
+            <Text
+              style={{
+                color:
+                  item.managerApproved === null
+                    ? "#FFD700"
+                    : item.managerApproved
+                    ? "#4CAF50"
+                    : "#E53935",
+              }}
+            >
+              {item.managerApproved === null
+                ? "Pending"
+                : item.managerApproved
+                ? "Approved"
+                : "Rejected"}
+            </Text>
+          </Text>
+        )}
+
+        <Text style={styles.approvalText}>
+          HR:{" "}
+          <Text
+            style={{
+              color:
+                item.hrApproved === null
+                  ? "#FFD700"
+                  : item.hrApproved
+                  ? "#4CAF50"
+                  : "#E53935",
+            }}
+          >
+            {item.hrApproved === null
+              ? "Pending"
+              : item.hrApproved
+              ? "Approved"
+              : "Rejected"}
+          </Text>
+        </Text>
+
+        {/* Actions */}
         {canManagerAct ? (
           <View style={styles.actionsRow}>
             <TouchableOpacity
               onPress={() => handleAction(item._id, "manager-approve")}
-              style={[styles.btn, { backgroundColor: "#00A36C" }]}
+              style={[styles.btn, styles.btnApprove]}
             >
               <Text style={styles.btnText}>Approve</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => handleAction(item._id, "manager-reject")}
-              style={[styles.btn, { backgroundColor: "#C62828" }]}
+              style={[styles.btn, styles.btnReject]}
             >
               <Text style={styles.btnText}>Reject</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={{ marginTop: 6 }}>
-            {isRemote ? (
-              <Text style={{ color: "#999" }}>
-                👀 Remote request — visible only, HR handles approval
-              </Text>
-            ) : (
-              <Text style={{ color: "#999" }}>
-                ✅ Already processed or awaiting HR approval
-              </Text>
-            )}
-          </View>
+          <Text style={styles.infoText}>
+            {isRemote
+              ? "Remote request — HR handles approval"
+              : "Already processed or waiting for HR"}
+          </Text>
         )}
       </View>
     );
@@ -130,13 +181,13 @@ export default function ManagerApprovals() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Manager Approvals</Text>
       <FlatList
         data={requests}
         keyExtractor={(item, index) =>
           item._id ? item._id.toString() : index.toString()
         }
         renderItem={renderItem}
+        contentContainerStyle={{ paddingBottom: 40 }}
       />
     </View>
   );
@@ -150,27 +201,60 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#000",
   },
-  header: { color: "#00A36C", fontSize: 22, marginBottom: 10 },
+  header: {
+    color: "#00A36C",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 14,
+    textAlign: "center",
+  },
   card: {
     backgroundColor: "#111",
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderColor: "#00A36C",
+    borderRadius: 14,
+    marginBottom: 14,
+    borderColor: "#00A36C55",
     borderWidth: 1,
+    shadowColor: "#00A36C",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  employee: { color: "#fff", marginBottom: 2 },
-  text: { color: "#fff", marginBottom: 2 },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  employee: { color: "#fff", fontWeight: "600", fontSize: 16 },
+  badge: {
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  badgeText: { fontWeight: "bold", fontSize: 13 },
+  type: { fontWeight: "600", marginBottom: 6, fontSize: 15 },
+  datesRow: { flexDirection: "row", gap: 6 },
+  text: { color: "#ccc", fontSize: 13 },
+  approvalText: { color: "#aaa", marginTop: 6, fontSize: 13 },
   actionsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    marginTop: 12,
   },
   btn: {
-    padding: 8,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 10,
     width: "48%",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 3,
   },
+  btnApprove: { backgroundColor: "#00A36C" },
+  btnReject: { backgroundColor: "#C62828" },
   btnText: { color: "#fff", fontWeight: "bold" },
+  infoText: { color: "#888", marginTop: 10, fontSize: 13 },
 });
