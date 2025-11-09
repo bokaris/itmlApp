@@ -173,6 +173,7 @@ router.patch("/:id/manager-reject", async (req, res) => {
     }
 
     request.managerApproved = false;
+    request.hrApproved = false;
     request.status = "rejected";
 
     await request.save();
