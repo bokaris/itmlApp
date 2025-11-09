@@ -6,16 +6,16 @@ type Props = {
 };
 
 export default function StatusBadge({ status }: Props) {
-  const colorMap: Record<string, { bg: string; text: string }> = {
-    approved: { bg: "#1B5E20", text: "#A5D6A7" },
-    pending: { bg: "#F57F17", text: "#FFF9C4" },
-    rejected: { bg: "#B71C1C", text: "#FFCDD2" },
+  const colorMap: Record<string, { text: string }> = {
+    approved: { text: "#4CAF50" },
+    pending: { text: "#FFD700" },
+    rejected: { text: "#E53935" },
   };
 
-  const { bg, text } = colorMap[status] || colorMap.pending;
+  const { text } = colorMap[status] || colorMap.pending;
 
   return (
-    <View style={[styles.badge, { backgroundColor: bg }]}>
+    <View style={[styles.badge, { backgroundColor: text + "22" }]}>
       <Text style={[styles.text, { color: text }]}>{status.toUpperCase()}</Text>
     </View>
   );
@@ -23,14 +23,12 @@ export default function StatusBadge({ status }: Props) {
 
 const styles = StyleSheet.create({
   badge: {
-    paddingVertical: 4,
+    paddingVertical: 3,
     paddingHorizontal: 10,
-    borderRadius: 20,
-    alignSelf: "flex-start",
+    borderRadius: 10,
   },
   text: {
     fontWeight: "bold",
-    fontSize: 12,
-    letterSpacing: 0.5,
+    fontSize: 13,
   },
 });

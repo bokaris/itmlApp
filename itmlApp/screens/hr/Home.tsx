@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Calendar, CalendarUtils } from "react-native-calendars";
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/utils/formatDate";
 
 const API_URL = "http://10.0.2.2:5000";
 
@@ -72,14 +73,6 @@ export default function HRHome() {
 
     return { thisMonth, activeToday, total: requests.length };
   }, [requests]);
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "-";
-    const d = new Date(dateStr);
-    return `${String(d.getDate()).padStart(2, "0")}-${String(
-      d.getMonth() + 1
-    ).padStart(2, "0")}-${d.getFullYear()}`;
-  };
 
   const handleDayPress = (day: any) => {
     const date = day.dateString;

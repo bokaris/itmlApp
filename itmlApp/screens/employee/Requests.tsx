@@ -10,6 +10,7 @@ import {
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
+import { formatDate } from "@/utils/formatDate";
 
 type Request = {
   _id: string;
@@ -36,13 +37,16 @@ export default function Requests() {
         `http://10.0.2.2:5000/requests?email=${user?.email}`
       );
       const data = await res.json();
-      if (data.requests) {
-        setRequests(data.requests);
-        setRemaining(data.remaining?.remaining ?? 0);
-        setTotal(data.remaining?.total ?? 20);
-      } else {
-        setRequests(data);
-      }
+
+      const allRequests = Array.isArray(data) ? data : data.requests || [];
+
+      const pendingRequests = allRequests.filter(
+        (r: Request) => r.status === "pending"
+      );
+
+      setRequests(pendingRequests);
+      setRemaining(data.remaining?.remaining ?? 0);
+      setTotal(data.remaining?.total ?? 20);
     } catch (err) {
       console.error("❌ Error fetching requests:", err);
     } finally {
@@ -64,33 +68,14 @@ export default function Requests() {
     );
   }
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "-";
-    const date = new Date(dateStr);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
   const renderItem = ({ item }: { item: Request }) => {
     const isAnnual = item.type === "annual";
-    const statusColor =
-      item.status === "approved"
-        ? "#4CAF50"
-        : item.status === "rejected"
-        ? "#E53935"
-        : "#FFD700";
 
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <Text style={styles.type}>{item.type.toUpperCase()}</Text>
-          <View style={[styles.badge, { backgroundColor: statusColor + "22" }]}>
-            <Text style={[styles.badgeText, { color: statusColor }]}>
-              {item.status.toUpperCase()}
-            </Text>
-          </View>
+          <StatusBadge status={item.status} />
         </View>
 
         <Text style={styles.dates}>
@@ -138,10 +123,6 @@ export default function Requests() {
               : "Rejected"}
           </Text>
         </Text>
-
-        <View style={styles.statusContainer}>
-          <StatusBadge status={item.status} />
-        </View>
       </View>
     );
   };
@@ -150,7 +131,7 @@ export default function Requests() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <View>
-          <Text style={styles.headerTitle}>My Requests</Text>
+          <Text style={styles.headerTitle}>Pending Requests</Text>
           <Text style={styles.headerSubtitle}>
             Remaining annual leaves: {remaining}/{total}
           </Text>
@@ -163,14 +144,20 @@ export default function Requests() {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={requests}
-        keyExtractor={(item, index) =>
-          item._id ? item._id.toString() : index.toString()
-        }
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 20 }}
-      />
+      {requests.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>No pending requests 🎉</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={requests}
+          keyExtractor={(item, index) =>
+            item._id ? item._id.toString() : index.toString()
+          }
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 20 }}
+        />
+      )}
     </View>
   );
 }
@@ -218,10 +205,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderColor: "#00A36C55",
     borderWidth: 1,
-    shadowColor: "#00A36C",
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
   },
   cardHeader: {
     flexDirection: "row",
@@ -229,20 +212,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 6,
   },
-  badge: {
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-  },
-  badgeText: {
-    fontWeight: "bold",
-    fontSize: 13,
-  },
   type: { color: "#00A36C", fontSize: 18, fontWeight: "bold" },
   dates: { color: "#ccc", marginBottom: 6 },
   subtext: { color: "#aaa", marginTop: 4, fontSize: 13 },
-  statusContainer: {
-    marginTop: 10,
-    alignItems: "flex-end",
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 100,
   },
+  emptyText: { color: "#777", fontSize: 16 },
 });

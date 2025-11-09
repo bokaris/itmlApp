@@ -8,6 +8,8 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
+import StatusBadge from "@/components/StatusBadge";
+import { formatDate } from "@/utils/formatDate";
 
 const API_URL = "http://10.0.2.2:5000";
 
@@ -63,15 +65,6 @@ export default function ManagerApprovals() {
     );
   }
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "-";
-    const date = new Date(dateStr);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
   const renderItem = ({ item }: any) => {
     const isAnnual = item.type === "annual";
     const isRemote = item.type === "remote";
@@ -90,11 +83,7 @@ export default function ManagerApprovals() {
           <Text style={styles.employee}>
             {item.employee?.name || "Unknown"}
           </Text>
-          <View style={[styles.badge, { backgroundColor: statusColor + "22" }]}>
-            <Text style={[styles.badgeText, { color: statusColor }]}>
-              {item.status.toUpperCase()}
-            </Text>
-          </View>
+          <StatusBadge status={item.status} />
         </View>
 
         <Text

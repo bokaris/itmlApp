@@ -11,6 +11,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/utils/formatDate";
 
 const API_URL = "http://10.0.2.2:5000";
 
@@ -24,9 +25,6 @@ export default function CreateRequest() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const formatDate = (date: Date | null) =>
-    date ? date.toISOString().split("T")[0] : "";
 
   // 🧩 Fetch remaining annual leave on load
   useEffect(() => {

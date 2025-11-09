@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Calendar, CalendarUtils } from "react-native-calendars";
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/utils/formatDate";
 
 const API_URL = "http://10.0.2.2:5000";
 
@@ -62,15 +63,6 @@ export default function Home() {
     fetchRequests();
   }, []);
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "-";
-    const date = new Date(dateStr);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
   const handleDayPress = (day: any) => {
     const date = day.dateString;
     setSelectedDate(date);
@@ -97,7 +89,7 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>📅 Annual Leave Calendar</Text>
+      <Text style={styles.header}>📅 Team Annual Leave Calendar</Text>
 
       <View style={styles.calendarWrapper}>
         <Calendar
