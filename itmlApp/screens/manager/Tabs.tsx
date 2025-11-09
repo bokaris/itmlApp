@@ -29,7 +29,7 @@ export default function ManagerTabs() {
           name="Home"
           component={Home}
           options={{
-            title: "Dashboard",
+            title: "Calendar",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="calendar-outline" size={size} color={color} />
             ),

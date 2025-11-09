@@ -56,9 +56,10 @@ export default function EmployeeTabs() {
           name="Home"
           component={Home}
           options={{
-            title: "Dashboard",
+            title: "Calendar",
+            headerTitle: "📅 Team Annual Leave Calendar",
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home-outline" color={color} size={size} />
+              <Ionicons name="calendar-outline" color={color} size={size} />
             ),
           }}
         />
@@ -67,7 +68,6 @@ export default function EmployeeTabs() {
           name="RequestsTab"
           component={RequestStack}
           options={{
-            title: "Requests",
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons
