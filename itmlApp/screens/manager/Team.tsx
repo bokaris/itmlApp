@@ -6,12 +6,10 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { useAuth } from "@/context/AuthContext";
 
 const API_URL = "http://10.0.2.2:5000";
 
 export default function Team() {
-  const { user } = useAuth();
   const [team, setTeam] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +19,6 @@ export default function Team() {
         const res = await fetch(`${API_URL}/users`);
         const data = await res.json();
 
-        // ✅ Manager sees only employees
         const employees = data.filter((u: any) => u.role === "employee");
         setTeam(employees);
       } catch (err) {
@@ -59,13 +56,6 @@ export default function Team() {
           {item.remainingLeaves ?? item.annualLeaveAllowance ?? 20}
         </Text>
       </Text>
-
-      {item.takenLeaves !== undefined && (
-        <Text style={styles.subtext}>
-          ✅ Approved This Year:{" "}
-          <Text style={{ color: "#FFD700" }}>{item.takenLeaves}</Text>
-        </Text>
-      )}
     </View>
   );
 

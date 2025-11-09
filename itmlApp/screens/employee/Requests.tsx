@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
@@ -146,7 +147,8 @@ export default function Requests() {
 
       {requests.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No pending requests 🎉</Text>
+          <Ionicons name="document-text-outline" size={48} color="#444" />
+          <Text style={styles.emptyText}>No pending requests yet</Text>
         </View>
       ) : (
         <FlatList

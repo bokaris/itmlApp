@@ -15,7 +15,6 @@ import { formatDate } from "@/utils/formatDate";
 const API_URL = "http://10.0.2.2:5000";
 
 export default function Home() {
-  const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [markedDates, setMarkedDates] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -29,12 +28,10 @@ export default function Home() {
         const res = await fetch(`${API_URL}/requests`);
         const data = await res.json();
 
-        // ✅ Filter only approved annual leaves (all employees)
         const approvedAnnuals = data.filter(
           (req: any) => req.type === "annual" && req.status === "approved"
         );
 
-        // 🟢 Mark all approved leave dates
         const marks: any = {};
         approvedAnnuals.forEach((req: any) => {
           const start = new Date(req.startDate);
@@ -67,7 +64,6 @@ export default function Home() {
     const date = day.dateString;
     setSelectedDate(date);
 
-    // 🧩 Find all employees with approved leave on this date
     const filtered = requests.filter((req) => {
       const start = new Date(req.startDate);
       const end = new Date(req.endDate);

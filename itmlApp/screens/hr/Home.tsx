@@ -29,7 +29,6 @@ export default function HRHome() {
         const res = await fetch(`${API_URL}/requests`);
         const data = await res.json();
 
-        // ✅ Only approved annual leaves
         const approvedAnnuals = data.filter(
           (r: any) => r.type === "annual" && r.status === "approved"
         );
@@ -57,7 +56,6 @@ export default function HRHome() {
     fetchApprovedLeaves();
   }, []);
 
-  // ✅ HR overview metrics
   const stats = useMemo(() => {
     const now = new Date();
     const currentMonth = now.getMonth();

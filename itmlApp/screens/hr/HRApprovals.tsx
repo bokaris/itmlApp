@@ -213,12 +213,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   employee: { color: "#fff", fontWeight: "600", fontSize: 16 },
-  badge: {
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-  },
-  badgeText: { fontWeight: "bold", fontSize: 13 },
   type: { fontWeight: "600", marginBottom: 6, fontSize: 15 },
   datesRow: { flexDirection: "row", gap: 6 },
   text: { color: "#ccc", fontSize: 13 },

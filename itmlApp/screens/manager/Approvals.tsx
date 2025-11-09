@@ -70,13 +70,6 @@ export default function ManagerApprovals() {
     const isRemote = item.type === "remote";
     const canManagerAct = isAnnual && item.managerApproved === null;
 
-    const statusColor =
-      item.status === "approved"
-        ? "#4CAF50"
-        : item.status === "rejected"
-        ? "#E53935"
-        : "#FFD700";
-
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>

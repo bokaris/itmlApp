@@ -29,12 +29,10 @@ export default function HRHome() {
         const res = await fetch(`${API_URL}/requests`);
         const data = await res.json();
 
-        // ✅ Filter only approved annual leaves
         const approvedAnnuals = data.filter(
           (req: any) => req.type === "annual" && req.status === "approved"
         );
 
-        // 🗓️ Mark days on calendar
         const marks: any = {};
         approvedAnnuals.forEach((req: any) => {
           const start = new Date(req.startDate);

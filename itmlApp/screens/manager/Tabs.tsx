@@ -81,7 +81,7 @@ export default function ManagerTabs() {
         </Tab.Screen>
       </Tab.Navigator>
 
-      {/* 🧩 Logout confirmation modal */}
+      {/* Logout confirmation modal */}
       <LogoutModal
         visible={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}

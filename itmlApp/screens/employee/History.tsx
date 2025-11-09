@@ -177,15 +177,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   type: { color: "#00A36C", fontWeight: "bold", fontSize: 16 },
-  badge: {
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-  },
-  badgeText: {
-    fontWeight: "bold",
-    fontSize: 13,
-  },
   dates: { color: "#aaa", marginTop: 6 },
   approvals: { color: "#ccc", marginTop: 6, fontSize: 13 },
 });

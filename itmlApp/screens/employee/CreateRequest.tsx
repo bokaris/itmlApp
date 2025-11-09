@@ -26,7 +26,6 @@ export default function CreateRequest() {
   const [total, setTotal] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🧩 Fetch remaining annual leave on load
   useEffect(() => {
     const fetchRemaining = async () => {
       try {

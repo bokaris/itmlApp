@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useAuth } from "@/context/AuthContext";
 
 import HRApprovals from "./HRApprovals";
 import Home from "./Home";
@@ -86,7 +85,7 @@ export default function HrTabs() {
         </Tab.Screen>
       </Tab.Navigator>
 
-      {/* 🧩 Logout confirmation modal */}
+      {/* Logout confirmation modal */}
       <LogoutModal
         visible={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
