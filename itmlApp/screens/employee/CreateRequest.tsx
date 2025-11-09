@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { useAuth } from "@/context/AuthContext";
 
+const API_URL = "http://10.0.2.2:5000";
+
 export default function CreateRequest() {
   const { user } = useAuth(); // ✅ get logged-in user
   const [type, setType] = useState("remote");
@@ -18,9 +20,28 @@ export default function CreateRequest() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const formatDate = (date: Date | null) =>
     date ? date.toISOString().split("T")[0] : "";
+
+  // 🧩 Fetch remaining annual leave on load
+  useEffect(() => {
+    const fetchRemaining = async () => {
+      try {
+        if (!user?.email) return;
+        const res = await fetch(`${API_URL}/requests?email=${user.email}`);
+        const data = await res.json();
+        if (data.remaining) setRemaining(data.remaining.remaining);
+      } catch (err) {
+        console.error("❌ Error fetching remaining:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRemaining();
+  }, [user]);
 
   const handleSubmit = async () => {
     if (!user?.email) {
@@ -71,8 +92,6 @@ export default function CreateRequest() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>New Request</Text>
-
       {/* Type Dropdown */}
       <Text style={styles.label}>Request Type</Text>
       <View style={styles.pickerWrapper}>
@@ -83,7 +102,11 @@ export default function CreateRequest() {
           style={{ color: "#fff" }}
         >
           <Picker.Item label="Remote Work" value="remote" />
-          <Picker.Item label="Annual Leave" value="annual" />
+          <Picker.Item
+            label="Annual Leave"
+            value="annual"
+            enabled={remaining !== 0}
+          />
         </Picker>
       </View>
 
@@ -153,12 +176,6 @@ export default function CreateRequest() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000", padding: 20 },
-  header: {
-    color: "#00A36C",
-    fontSize: 22,
-    textAlign: "center",
-    marginVertical: 20,
-  },
   label: { color: "#aaa", marginBottom: 6 },
   pickerWrapper: {
     borderColor: "#00A36C",

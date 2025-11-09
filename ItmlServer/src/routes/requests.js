@@ -2,22 +2,54 @@ import express from "express";
 import Request from "../models/Request.js";
 import User from "../models/User.js";
 
+import countWorkingDays from "../utilities/countWorkingDays.js";
+
 const router = express.Router();
 
 /* ==========================================
    📄 GET all requests
    Optionally filter by ?email=employee@itml.com
+   Also returns remaining annual leave info
 ========================================== */
 router.get("/", async (req, res) => {
   try {
     const { email } = req.query;
     let query = {};
+    let remaining = null; // 👈 we'll fill this if email is given
 
     // If email is passed, get only that employee’s requests
     if (email) {
       const user = await User.findOne({ email });
       if (!user) return res.status(404).json({ error: "User not found" });
       query.employee = user._id;
+
+      // 🧮 Calculate remaining annual leave
+      const year = new Date().getFullYear();
+      const startOfYear = new Date(year, 0, 1);
+      const endOfYear = new Date(year, 11, 31);
+
+      const approvedAnnuals = await Request.find({
+        employee: user._id,
+        type: "annual",
+        status: "approved",
+        startDate: { $gte: startOfYear },
+        endDate: { $lte: endOfYear },
+      });
+
+      const usedDays = approvedAnnuals.reduce((acc, r) => {
+        const s = new Date(r.startDate);
+        const e = new Date(r.endDate);
+        return acc + countWorkingDays(s, e);
+      }, 0);
+
+      const totalAllowance = user.annualLeaveAllowance ?? 20;
+      const remainingDays = Math.max(totalAllowance - usedDays, 0);
+
+      remaining = {
+        total: totalAllowance,
+        used: usedDays,
+        remaining: remainingDays,
+      };
     }
 
     const requests = await Request.find(query)
@@ -26,6 +58,12 @@ router.get("/", async (req, res) => {
       .populate("hr", "name email")
       .sort({ createdAt: -1 });
 
+    // ✅ If email provided → return both requests & remaining info
+    if (email) {
+      return res.json({ requests, remaining });
+    }
+
+    // Otherwise just all requests
     res.json(requests);
   } catch (err) {
     console.error("❌ Error fetching requests:", err);
@@ -50,6 +88,14 @@ router.post("/", async (req, res) => {
     const employee = await User.findOne({ email });
     if (!employee) {
       return res.status(404).json({ error: "User not found" });
+    }
+
+    const usedDays = countWorkingDays(new Date(startDate), new Date(endDate));
+
+    if (type === "annual" && employee.remainingAnnualLeaves < usedDays) {
+      return res.status(400).json({
+        error: `Not enough available days (${employee.remainingAnnualLeaves} left).`,
+      });
     }
 
     // Find manager and HR
@@ -148,11 +194,29 @@ router.patch("/:id/hr-approve", async (req, res) => {
     request.hrApproved = true;
 
     if (request.type === "annual") {
-      request.status = request.managerApproved ? "approved" : "pending";
+      if (request.managerApproved) {
+        request.status = "approved";
+
+        const usedDays = countWorkingDays(
+          new Date(request.startDate),
+          new Date(request.endDate)
+        );
+
+        const employee = await User.findById(request.employee._id);
+        if (employee.remainingAnnualLeaves < usedDays) {
+          return res.status(400).json({
+            error: `Not enough available days (${employee.remainingAnnualLeaves} left).`,
+          });
+        }
+
+        employee.remainingAnnualLeaves -= usedDays;
+        await employee.save();
+      } else {
+        request.status = "pending";
+      }
     } else if (request.type === "remote") {
       request.status = "approved";
     }
-
     await request.save();
     res.json({ message: "✅ HR approved request", request });
   } catch (err) {
@@ -177,6 +241,35 @@ router.patch("/:id/hr-reject", async (req, res) => {
   } catch (err) {
     console.error("❌ Error rejecting request:", err);
     res.status(500).json({ error: "Failed to reject request" });
+  }
+});
+
+/* ==========================================
+   📅 GET approved annual leaves (for calendar)
+   Everyone sees all approved annual requests
+========================================== */
+router.get("/calendar", async (req, res) => {
+  try {
+    const requests = await Request.find({
+      type: "annual",
+      status: "approved",
+    })
+      .populate("employee", "name email")
+      .sort({ startDate: 1 });
+
+    // 🧩 Format for frontend calendar
+    const events = requests.map((r) => ({
+      id: r._id,
+      title: `${r.employee.name} on leave`,
+      start: r.startDate,
+      end: r.endDate,
+      email: r.employee.email,
+    }));
+
+    res.json(events);
+  } catch (err) {
+    console.error("❌ Error fetching calendar data:", err);
+    res.status(500).json({ error: "Failed to fetch calendar events" });
   }
 });
 

@@ -24,6 +24,8 @@ type Request = {
 export default function Requests() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<Request[]>([]);
+  const [remaining, setRemaining] = useState();
+  const [total, setTotal] = useState();
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<any>();
 
@@ -33,7 +35,13 @@ export default function Requests() {
         `http://10.0.2.2:5000/requests?email=${user?.email}`
       );
       const data = await res.json();
-      setRequests(data);
+      if (data.requests) {
+        setRequests(data.requests);
+        setRemaining(data.remaining?.remaining ?? 0);
+        setTotal(data.remaining?.total ?? 20);
+      } else {
+        setRequests(data);
+      }
     } catch (err) {
       console.error("❌ Error fetching requests:", err);
     } finally {
@@ -118,7 +126,9 @@ export default function Requests() {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.header}>My Requests</Text>
+        <Text style={styles.header}>
+          Remaining annual leaves: {remaining}/{total}
+        </Text>
         <TouchableOpacity
           style={styles.newButton}
           onPress={() => navigation.navigate("CreateRequest")}
@@ -154,7 +164,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBlock: 12,
   },
-  header: { color: "#00A36C", fontSize: 22 },
+  header: { color: "#00A36C", fontSize: 18 },
   newButton: {
     backgroundColor: "#00A36C",
     borderRadius: 8,

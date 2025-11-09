@@ -22,6 +22,21 @@ const userSchema = new mongoose.Schema(
       enum: ["employee", "manager", "hr"],
       required: true,
     },
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
+      default: null,
+    },
+    annualLeaveAllowance: {
+      type: Number,
+      default: 20,
+      required: true,
+    },
+    remainingAnnualLeaves: {
+      type: Number,
+      default: 20,
+      required: true,
+    },
   },
   { timestamps: true }
 );
