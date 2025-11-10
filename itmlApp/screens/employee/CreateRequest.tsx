@@ -70,8 +70,8 @@ export default function CreateRequest() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type,
-          startDate: formatDate(startDate),
-          endDate: formatDate(endDate),
+          startDate: startDate,
+          endDate: endDate,
           email: user.email,
         }),
       });

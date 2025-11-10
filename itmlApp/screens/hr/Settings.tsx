@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 export default function Settings() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>HR Dashboard ⚙️</Text>
       <Text style={styles.subtitle}>
         Manage company leave policies, view usage reports, and configure
         approval workflows.
@@ -51,13 +50,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
     padding: 20,
-  },
-  title: {
-    color: "#00A36C",
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 6,
   },
   subtitle: {
     color: "#aaa",

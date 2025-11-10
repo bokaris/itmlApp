@@ -52,16 +52,13 @@ export default function Team() {
 
       <Text style={styles.leaves}>
         🌿 Remaining Leaves:{" "}
-        <Text style={{ color: "#00A36C" }}>
-          {item.remainingLeaves ?? item.annualLeaveAllowance ?? 20}
-        </Text>
+        <Text style={{ color: "#00A36C" }}>{item.remainingAnnualLeaves}</Text>
       </Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Team 👥</Text>
       <FlatList
         data={team}
         keyExtractor={(item, index) =>
@@ -77,13 +74,6 @@ export default function Team() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000", padding: 20 },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },
-  title: {
-    color: "#00A36C",
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
   card: {
     backgroundColor: "#111",
     borderRadius: 12,
@@ -108,5 +98,4 @@ const styles = StyleSheet.create({
   roleText: { color: "#00A36C", fontSize: 12, fontWeight: "600" },
   email: { color: "#aaa", fontSize: 13, marginBottom: 6 },
   leaves: { color: "#ccc", fontSize: 13, marginBottom: 4 },
-  subtext: { color: "#888", fontSize: 12 },
 });

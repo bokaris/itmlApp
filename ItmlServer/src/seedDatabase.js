@@ -36,6 +36,7 @@ export async function seedDatabase() {
         email: "george@itml.com",
         password: "123456",
         role: "employee",
+        remainingAnnualLeaves: 17,
       },
       {
         name: "Antonis",
@@ -118,8 +119,8 @@ export async function seedDatabase() {
         status: "approved",
         managerApproved: true,
         hrApproved: true,
-        startDate: "2025-12-20",
-        endDate: "2025-12-23",
+        startDate: "2025-12-17",
+        endDate: "2025-12-19",
       },
     ];
 

@@ -178,7 +178,6 @@ export default function HRApprovals() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>HR Approvals</Text>
       <FlatList
         data={requests}
         keyExtractor={(item, index) =>
@@ -198,13 +197,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#000",
-  },
-  header: {
-    color: "#00A36C",
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 14,
-    textAlign: "center",
   },
   card: {
     backgroundColor: "#111",

@@ -69,6 +69,7 @@ export default function EmployeeTabs() {
           component={RequestStack}
           options={{
             headerShown: false,
+            title: "Request",
             tabBarIcon: ({ color, size }) => (
               <Ionicons
                 name="document-text-outline"
@@ -84,6 +85,7 @@ export default function EmployeeTabs() {
           component={History}
           options={{
             title: "History",
+            headerTitle: "Request History 🗂️",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="time-outline" color={color} size={size} />
             ),

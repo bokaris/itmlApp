@@ -30,6 +30,7 @@ export default function ManagerTabs() {
           component={Home}
           options={{
             title: "Calendar",
+            headerTitle: "📅 Team Annual Leave Calendar",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="calendar-outline" size={size} color={color} />
             ),
@@ -54,6 +55,7 @@ export default function ManagerTabs() {
           component={Team}
           options={{
             title: "My Team",
+            headerTitle: "My Team 👥",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="people-outline" size={size} color={color} />
             ),

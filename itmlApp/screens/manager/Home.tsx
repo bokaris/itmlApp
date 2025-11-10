@@ -89,8 +89,6 @@ export default function HRHome() {
       <Text style={styles.welcome}>
         Welcome, <Text style={styles.highlight}>{user?.name || "HR"}</Text> 👋
       </Text>
-      <Text style={styles.header}>📅 Team Annual Leave Calendar</Text>
-
       <View style={styles.calendarWrapper}>
         <Calendar
           theme={{
@@ -173,16 +171,9 @@ const styles = StyleSheet.create({
     color: "#aaa",
     fontSize: 16,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 16,
   },
   highlight: { color: "#00A36C", fontWeight: "600" },
-  header: {
-    color: "#00A36C",
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
   calendarWrapper: {
     borderRadius: 12,
     borderWidth: 1,

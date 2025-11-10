@@ -149,6 +149,6 @@ const styles = StyleSheet.create({
     color: "#555",
     fontSize: 12,
     position: "absolute",
-    bottom: 20,
+    bottom: 25,
   },
 });

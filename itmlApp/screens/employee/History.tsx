@@ -66,8 +66,6 @@ export default function History() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Request History 🗂️</Text>
-
       {history.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="document-text-outline" size={48} color="#444" />
@@ -148,13 +146,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#000",
-  },
-  title: {
-    color: "#00A36C",
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 14,
-    textAlign: "center",
   },
   emptyState: {
     flex: 1,

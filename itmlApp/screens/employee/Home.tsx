@@ -15,6 +15,7 @@ import { formatDate } from "@/utils/formatDate";
 const API_URL = "http://10.0.2.2:5000";
 
 export default function Home() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [markedDates, setMarkedDates] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -85,8 +86,9 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>📅 Team Annual Leave Calendar</Text>
-
+      <Text style={styles.welcome}>
+        Welcome, <Text style={styles.highlight}>{user?.name || "HR"}</Text> 👋
+      </Text>
       <View style={styles.calendarWrapper}>
         <Calendar
           theme={{
@@ -156,13 +158,13 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000", padding: 20 },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: {
-    color: "#00A36C",
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+  welcome: {
+    color: "#aaa",
+    fontSize: 16,
     textAlign: "center",
+    marginBottom: 16,
   },
+  highlight: { color: "#00A36C", fontWeight: "600" },
   calendarWrapper: {
     borderRadius: 12,
     borderWidth: 1,

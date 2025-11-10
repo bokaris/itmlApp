@@ -42,6 +42,7 @@ export default function HrTabs() {
           component={HRApprovals}
           options={{
             title: "Approvals",
+            headerTitle: "HR Approvals",
             tabBarIcon: ({ color, size }) => (
               <Ionicons
                 name="checkmark-done-outline"

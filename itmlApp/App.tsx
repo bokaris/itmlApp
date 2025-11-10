@@ -27,7 +27,7 @@ function RootNavigator() {
           <Stack.Screen
             name="Login"
             component={Login}
-            options={{ title: "Login" }}
+            options={{ headerShown: false }}
           />
         ) : user.role === "employee" ? (
           <Stack.Screen
