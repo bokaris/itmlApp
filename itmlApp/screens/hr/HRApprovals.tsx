@@ -21,7 +21,19 @@ export default function HRApprovals() {
     try {
       const res = await fetch(`${API_URL}/requests`);
       const data = await res.json();
-      setRequests(data);
+
+      const sorted = data.sort((a: any, b: any) => {
+        const aNeedsAction =
+          a.status === "pending" &&
+          (a.hrApproved === null || a.hrApproved === false);
+        const bNeedsAction =
+          b.status === "pending" &&
+          (b.hrApproved === null || b.hrApproved === false);
+        if (aNeedsAction === bNeedsAction) return 0;
+        return aNeedsAction ? -1 : 1;
+      });
+
+      setRequests(sorted);
     } catch (err) {
       console.error("❌ Error fetching requests:", err);
       Alert.alert("Error", "Could not load requests");

@@ -21,7 +21,14 @@ export default function ManagerApprovals() {
     try {
       const res = await fetch(`${API_URL}/requests`);
       const data = await res.json();
-      setRequests(data);
+
+      const sorted = data.sort((a: any, b: any) => {
+        const aNeedsAction = a.type === "annual" && a.managerApproved === null;
+        const bNeedsAction = b.type === "annual" && b.managerApproved === null;
+        return aNeedsAction === bNeedsAction ? 0 : aNeedsAction ? -1 : 1;
+      });
+
+      setRequests(sorted);
     } catch (err) {
       console.error("❌ Error fetching requests:", err);
       Alert.alert("Error", "Could not load requests");
