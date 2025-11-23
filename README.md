@@ -1,163 +1,59 @@
 # ITML HR Automation App
 
-A mobile HR request automation system built as a learning project after completing  
-**“The Complete React Native & Redux Course”**.  
-The system simulates a mini HR workflow used in real companies:
+React Native (Expo) client + Express/MongoDB backend for automating HR requests (employees submit requests, managers/HR approve, calendar of approved leaves).
 
-- Employees submit **Annual** or **Remote Work** requests  
-- Managers review & approve annual requests  
-- HR provides final approval for all requests  
-- Calendar view for visualizing approved leaves  
+## Project layout
+- `itmlApp/` – Expo mobile app
+- `ItmlServer/` – Express API + MongoDB seed data
 
-Built with **React Native (Expo)**, **Express**, and **MongoDB**.
+## Prerequisites
+- Node.js 18+ and npm
+- MongoDB running locally (or Docker Desktop)
+- Android Studio with Android SDK and an emulator (API 33+ recommended)
+- Optional for builds: Expo CLI (`npm i -g expo`) and EAS CLI (`npm i -g eas-cli`, Expo account needed for cloud builds)
 
----
-
-## 🚀 Features
-
-### 👤 Employee
-- Submit Annual Leave Request  
-- Submit Remote Work Request  
-- View Request Status  
-- View Request History  
-- Calendar with approved leaves  
-
-### 👨‍💼 Manager  
-- Approve / Reject Annual Leave Requests  
-- View Team Overview  
-- Team annual leave calendar  
-
-### 🧑‍💼 HR
-- Approve / Reject All Requests  
-- View Company Calendar  
-- Basic metrics & overview  
-
----
-
-## 🏗 Tech Stack
-
-| Layer          | Technology             | Purpose                         |
-|----------------|-------------------------|---------------------------------|
-| Frontend       | React Native (Expo)    | Cross-platform mobile app       |
-| Backend        | Node.js + Express      | REST API                        |
-| Database       | MongoDB (Mongoose)     | Data persistence                |
-| State / Auth   | Context API            | Session & role management       |
-| UI Design      | Dark Mode + ITML Green | Modern consistent styling       |
-
----
-
-# 📦 Installation & Setup
-
-This project contains **two parts**:
-
+## 1) Backend (Express + MongoDB)
+1) `cd ItmlServer`
+2) Install dependencies: `npm install`
+3) Create `ItmlServer/.env`:
 ```
-/client  → React Native app  
-/server  → Express + MongoDB backend
-```
-
-Install & run **both**.
-
----
-
-# 🔧 1. Backend Setup (Express API)
-
-### 1️⃣ Navigate into the backend folder:
-```bash
-cd server
-```
-
-### 2️⃣ Install dependencies:
-```bash
-npm install
-```
-
-### 3️⃣ Create a `.env` file:
-Create `server/.env` using the template:
-
-```env
-MONGO_URI=mongodb://localhost:27017/itmlapp
+MONGO_URI=mongodb://localhost:27017/itml
 PORT=5000
 ```
+   - If using Docker Compose, set `MONGO_URI=mongodb://mongo:27017/itml`.
+4) Run MongoDB
+   - Local MongoDB service, or
+   - Docker: `docker compose up -d`
+5) Start the API: `npm run dev` (nodemon) or `npm start`  
+   The server listens on `http://0.0.0.0:5000`.
 
-### 4️⃣ Start the server:
-```bash
-npm start
+## 2) Run the app on the Android Studio emulator
+1) Launch Android Studio → Device Manager → create/start an emulator.
+2) `cd itmlApp && npm install`
+3) Ensure the backend is running on port 5000.
+4) With the emulator booted, start Expo: `npm run android` (or `npx expo start --android`). Expo opens the app in the emulator automatically.
+5) API base URL is hard-coded to `http://10.0.2.2:5000` (Android emulator loopback). For a physical device or a different host, replace `10.0.2.2` in the client code (`itmlApp/` search for `10.0.2.2`) with your machine’s LAN IP.
+
+## Optional: build an installable APK with EAS
+- Cloud build (simplest):
 ```
-
-Backend will run at:  
-📌 **http://localhost:5000**
-
----
-
-# 📱 2. Mobile App Setup (React Native)
-
-### 1️⃣ Navigate into the app:
-```bash
-cd client
-```
-
-### 2️⃣ Install dependencies:
-```bash
+cd itmlApp
 npm install
+npm i -g eas-cli
+eas login
+eas build -p android --profile preview
 ```
+Uses the `preview` profile in `eas.json` and returns a downloadable `.apk` from EAS.
 
-### 3️⃣ Start the Expo app:
-```bash
-npm start
+- Local build (no EAS cloud; uses your Android SDK/Java):
 ```
-
-Choose:
-- **Android Emulator**
-- **Physical Android device (Expo Go)**
-- **Web** (optional)
-
----
-
-## 📡 API Configuration
-
-The app uses this default API URL:
-
+cd itmlApp
+npm i -g eas-cli
+eas build -p android --profile preview --local
 ```
-http://10.0.2.2:5000  → Android emulator loopback
-```
+Outputs an `.apk` under `itmlApp/build/` that you can sideload. Before building for a real device, update the API URLs to point at an address reachable from the device (not `10.0.2.2`).
 
-If you're running on a **physical device**, replace with your machine's local IP:
-
-```
-http://YOUR_LOCAL_IP:5000
-```
-
----
-
-# 🤳 Screenshots
-(Add your images)
-
----
-
-# 🧠 My Learning Outcomes
-
-- Strengthened React Native fundamentals  
-- Built real REST API with Express and MongoDB  
-- Implemented role-based logic and multi-user workflows  
-- Improved async flow handling and component structure  
-- Built a mini production-like system end-to-end  
-
----
-
-# 🔮 Future Enhancements
-
-- Push notifications for approvals  
-- JWT authentication  
-- Deploy backend to cloud with MongoDB Atlas  
-- Expand HR analytics (dashboards)
-
----
-
-# 📎 Project Link  
-👉 https://github.com/bokaris/itmlApp
-
----
-
-# 👤 Author  
-**Alexandros Bokaris**  
-Built as part of personal upskilling in React Native & backend development.
+## Tips
+- If the emulator cannot find the Metro dev server, press `a` in the Expo terminal or pick “Run on Android device/emulator” in Expo Dev Tools.
+- Clear Expo cache if bundling misbehaves: `npx expo start -c`.
+- You can also run `npm run web` for quick UI checks; API calls still expect the backend.
